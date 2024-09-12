@@ -51,7 +51,9 @@ async def handle_valid_message(update: Update, context: CallbackContext) -> None
 
             # Download and process the images
             images = []
+            console.log(len(context.chat_data[media_group_id]))
             for file_id in context.chat_data[media_group_id]:
+                print(file_id)
                 file = await context.bot.get_file(file_id)
                 file_bytearray = await file.download_as_bytearray()
                 images.append(file_bytearray)
