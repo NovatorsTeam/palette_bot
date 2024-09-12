@@ -51,21 +51,16 @@ async def handle_valid_message(update: Update, context: CallbackContext) -> None
 
             # Download and process the images
             images = []
-            for file_id in context.chat_data[media_group_id]:
-                file = await context.bot.get_file(file_id)
+            for photo in update.message.photo:
+                # Get the highest resolution of the photo
+                file = await context.bot.get_file(photo.file_id)
+
+                # Download image as bytearray (raw byte data)
                 file_bytearray = await file.download_as_bytearray()
                 images.append(file_bytearray)
 
-            # Process the images using ImageProcessor
-            preprocessed_images = [
-                image_processor.preprocess_image(img) for img in images]
-
-            # Debugging print: print the number of images and their dimensions
-            print(len(preprocessed_images), [
-                  image.shape for image in preprocessed_images])
-
             # Send the images for further processing
-            result = await image_processor.process(preprocessed_images)
+            result = await image_processor.process(images)
 
             # Send the result back to the user
             await update.message.reply_text(f"🎉 Processing complete! Result: {result}")
