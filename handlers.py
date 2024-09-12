@@ -56,7 +56,7 @@ async def handle_valid_message(update: Update, context: CallbackContext) -> None
             await asyncio.sleep(0.5)
 
         # Proceed only when no new images arrive for 2 seconds
-        if len(context.chat_data[media_group_id]["photos"]) == 3 or len(context.chat_data[media_group_id]["photos"]) == 5:
+        if len(context.chat_data[media_group_id]["photos"]) == 5:
             await update.message.reply_text("⌛ Processing your images...")
 
             # Download and process the images
