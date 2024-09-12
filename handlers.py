@@ -45,7 +45,7 @@ async def handle_valid_message(update: Update, context: CallbackContext) -> None
         context.chat_data[media_group_id].append(
             update.message.photo[-1].file_id)
 
-        print(context.chat_data[media_group_id], len(images))
+        print(context.chat_data[media_group_id])
 
         # Wait until all images are received (3 or 5 images)
         if len(context.chat_data[media_group_id]) == 3 or len(context.chat_data[media_group_id]) == 5:
