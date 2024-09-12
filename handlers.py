@@ -18,8 +18,8 @@ async def send_instruction(update: Update, context: CallbackContext) -> None:
     # Load images from the assets folder
     # Update with actual image file names in 'assets'
     # Send the message with the images
-    await context.bot.send_media_group(chat_id=update.effective_chat.id, media=InputMediaPhoto(
-        open(os.path.join(ASSETS_PATH, 'instruction.jpg'), 'rb')))
+    await context.bot.send_media_group(chat_id=update.effective_chat.id, media=[InputMediaPhoto(
+        open(os.path.join(ASSETS_PATH, 'instruction.jpg'), 'rb'))])
 
     # Send the instruction message
     await update.message.reply_text(instruction_message)
