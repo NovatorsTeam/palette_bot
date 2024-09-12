@@ -28,9 +28,11 @@ class ImageProcessor:
         Returns:
             np.ndarray: The image as a NumPy array with shape (height, width, 3).
         """
+        img = Image.open(image).convert("RGB")
+
         # Convert image to NumPy array and transpose to (channels, height, width)
         # Switch the axis to (channels, height, width)
-        img_array = np.array(image).transpose(2, 0, 1)
+        img_array = np.array(img).transpose(2, 0, 1)
 
         return img_array
 
