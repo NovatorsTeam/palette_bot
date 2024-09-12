@@ -41,7 +41,9 @@ async def handle_valid_message(update: Update, context: CallbackContext) -> None
         if media_group_id not in context.chat_data:
             context.chat_data[media_group_id] = []
 
-        print(context.chat_data[media_group_id])
+        # Append the current image to the media group
+        context.chat_data[media_group_id].append(
+            update.message.photo[-1].file_id)
 
         # Wait until all images are received (3 or 5 images)
         if len(context.chat_data[media_group_id]) == 3 or len(context.chat_data[media_group_id]) == 5:
@@ -49,17 +51,21 @@ async def handle_valid_message(update: Update, context: CallbackContext) -> None
 
             # Download and process the images
             images = []
-            for photo in update.message.photo:
-                # Get the highest resolution of the photo
-                file = await context.bot.get_file(photo.file_id)
-
-                # Download image as bytearray (raw byte data)
+            for file_id in context.chat_data[media_group_id]:
+                file = await context.bot.get_file(file_id)
                 file_bytearray = await file.download_as_bytearray()
                 images.append(file_bytearray)
 
-            print(len(images))
+            # Process the images using ImageProcessor
+            preprocessed_images = [
+                image_processor.preprocess_image(img) for img in images]
+
+            # Debugging print: print the number of images and their dimensions
+            print(f"Received {len(preprocessed_images)} images:", [
+                  image.shape for image in preprocessed_images])
+
             # Send the images for further processing
-            result = await image_processor.process(images)
+            result = await image_processor.process(preprocessed_images)
 
             # Send the result back to the user
             await update.message.reply_text(f"🎉 Processing complete! Result: {result}")
