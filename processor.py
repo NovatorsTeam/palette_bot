@@ -43,7 +43,8 @@ class ImageProcessor:
         """
         # Preprocess each image
         preprocessed_images = [self.preprocess_image(img) for img in images]
-        print(preprocessed_images.size)
+        print(len(preprocessed_images), [
+              image.size for image in preprocessed_images])
 
         # # Convert list of images to a batch of images (assume ResNet expects (N, H, W, 3))
         # batch_images = np.stack(preprocessed_images, axis=0)
