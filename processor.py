@@ -65,7 +65,7 @@ class ImageProcessor:
 
         # Initialize Triton client
         triton_client = AsyncioModelClient(
-            self._address, self._model_name, init_timeout_s=15)
+            self._address, self._model_name, init_timeout_s=600)
 
         # Send the batch of images to the Triton server
         result_dict = await triton_client.infer_sample(**image_dict)
