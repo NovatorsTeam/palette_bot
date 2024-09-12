@@ -43,21 +43,22 @@ async def handle_valid_message(update: Update, context: CallbackContext) -> None
         if media_group_id not in context.chat_data:
             context.chat_data[media_group_id] = {
                 "photos": [],
-                "timestamp": time.time(),
+                "last_update_time": time.time()  # Track when the last image was received
             }
 
-        # Append the current image to the media group
+        # Append the current image to the media group and update the last update timestamp
         context.chat_data[media_group_id]["photos"].append(
             update.message.photo[-1].file_id)
+        context.chat_data[media_group_id]["last_update_time"] = time.time()
 
-        # Delay the processing to allow time for all images in the media group to arrive
-        await asyncio.sleep(1.5)
+        # Check every 0.5 seconds to see if more images arrive
+        while time.time() - context.chat_data[media_group_id]["last_update_time"] < 2:
+            await asyncio.sleep(0.5)
 
-        # Check if 3 or 5 images have been received
+        # Proceed only when no new images arrive for 2 seconds
         if len(context.chat_data[media_group_id]["photos"]) == 3 or len(context.chat_data[media_group_id]["photos"]) == 5:
             await update.message.reply_text("⌛ Processing your images...")
 
-            print(len(context.chat_data[media_group_id]["photos"]))
             # Download and process the images
             images = []
             for file_id in context.chat_data[media_group_id]["photos"]:
