@@ -39,8 +39,6 @@ async def handle_valid_message(update: Update, context: CallbackContext) -> None
     if update.message.media_group_id:
         media_group_id = update.message.media_group_id
 
-        print(len(context.chat_data[media_group_id]["photos"]))
-
         # Initialize the media group if it doesn't exist in the chat data
         if media_group_id not in context.chat_data:
             context.chat_data[media_group_id] = {
@@ -69,7 +67,7 @@ async def handle_valid_message(update: Update, context: CallbackContext) -> None
                 file_bytearray = await file.download_as_bytearray()
                 images.append(file_bytearray)
 
-            print(len(images))
+            print()
             # Send the images for further processing
             result = await image_processor.process(images)
 
