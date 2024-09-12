@@ -45,6 +45,8 @@ async def handle_valid_message(update: Update, context: CallbackContext) -> None
         context.chat_data[media_group_id].append(
             update.message.photo[-1].file_id)
 
+        print(context.chat_data[media_group_id], len(images))
+
         # Wait until all images are received (3 or 5 images)
         if len(context.chat_data[media_group_id]) == 3 or len(context.chat_data[media_group_id]) == 5:
             await update.message.reply_text("⌛ Processing your images...")
@@ -59,6 +61,7 @@ async def handle_valid_message(update: Update, context: CallbackContext) -> None
                 file_bytearray = await file.download_as_bytearray()
                 images.append(file_bytearray)
 
+            print(len(images))
             # Send the images for further processing
             result = await image_processor.process(images)
 
