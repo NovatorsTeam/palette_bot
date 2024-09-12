@@ -25,8 +25,6 @@ async def send_instruction(update: Update, context: CallbackContext) -> None:
     await update.message.reply_text(instruction_message)
 
 
-# Function to handle valid messages with exactly 3 or 5 images
-# Function to handle valid messages with exactly 3 or 5 images
 async def handle_valid_message(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
 
@@ -35,9 +33,10 @@ async def handle_valid_message(update: Update, context: CallbackContext) -> None
     for photo in update.message.photo:
         # Get the highest resolution of the photo
         file = await context.bot.get_file(photo.file_id)
-        file_bytearray = BytesIO()
-        await file.download(out=file_bytearray)
-        images.append(file_bytearray.getvalue())
+
+        # Use download_as_bytearray to get the image as a bytearray
+        file_bytearray = await file.download_as_bytearray()
+        images.append(file_bytearray)
 
     # Process images using ImageProcessor
     if len(images) == 3 or len(images) == 5:
