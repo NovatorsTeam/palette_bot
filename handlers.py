@@ -26,27 +26,40 @@ async def send_instruction(update: Update, context: CallbackContext) -> None:
 
 
 async def handle_valid_message(update: Update, context: CallbackContext) -> None:
-    user_id = update.effective_user.id
+    # Check if the message is part of a media group (multiple images sent as a single message)
+    if update.message.media_group_id:
+        media_group_id = update.message.media_group_id
 
-    # Download images from the message
-    images = []
-    for photo in update.message.photo:
-        # Get the highest resolution of the photo
-        file = await context.bot.get_file(photo.file_id)
+        # Initialize the media group if it doesn't exist in the chat data
+        if media_group_id not in context.chat_data:
+            context.chat_data[media_group_id] = []
 
-        # Use download_as_bytearray to get the image as a bytearray
-        file_bytearray = await file.download_as_bytearray()
-        images.append(file_bytearray)
+        # Append the current image to the media group
+        context.chat_data[media_group_id].append(
+            update.message.photo[-1].file_id)
 
-    # Process images using ImageProcessor
-    if len(images) == 3 or len(images) == 5:
-        await update.message.reply_text("⌛ Processing your images...")
+        # If we've received 3 or 5 images, process them
+        if len(context.chat_data[media_group_id]) == 3 or len(context.chat_data[media_group_id]) == 5:
+            await update.message.reply_text("⌛ Processing your images...")
 
-        # Send the images for processing
-        result = await image_processor.process(images)
+            # Download and process the images
+            images = []
+            for file_id in context.chat_data[media_group_id]:
+                file = await context.bot.get_file(file_id)
+                file_bytearray = await file.download_as_bytearray()
+                images.append(file_bytearray)
 
-        # Send the result back to the user
-        await update.message.reply_text(f"🎉 Processing complete! Result: {result}")
+            # Send the images for processing
+            result = await image_processor.process(images)
+
+            # Send the result back to the user
+            await update.message.reply_text(f"🎉 Processing complete! Result: {result}")
+
+            # Clear the media group after processing
+            context.chat_data.pop(media_group_id)
+        elif len(context.chat_data[media_group_id]) > 5:
+            await update.message.reply_text("🐍 Invalid input! Please send exactly 3 or 5 images.")
+            context.chat_data.pop(media_group_id)  # Clear invalid group
     else:
         await update.message.reply_text("🐍 Invalid input! Please send exactly 3 or 5 images.")
 
