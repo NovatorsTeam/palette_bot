@@ -1,48 +1,30 @@
 from telegram.ext import Application, CommandHandler, CallbackContext, MessageHandler, filters
-from telegram import ReplyKeyboardMarkup, Update
 import asyncio
+import os
+from handlers import send_instruction, show_instruction_button, reject_invalid_message, handle_valid_message
 
-# Function to display the keyboard by default
-
-
-async def default_keyboard(update: Update, context: CallbackContext) -> None:
-    # Define the reply keyboard layout
-    keyboard = [
-        ["Option 1 🚀", "Option 2"],  # Row 1
-        ["Option 3"]  # Row 2
-    ]
-
-    # Create the ReplyKeyboardMarkup object
-    reply_markup = ReplyKeyboardMarkup(
-        keyboard, one_time_keyboard=False, resize_keyboard=True)
-
-    # Send the message with the reply keyboard (this will be sent every time the user sends a message)
-    await update.message.reply_text('Choose an option:', reply_markup=reply_markup)
-
-# Callback function to handle button presses
-
-
-async def button_handler(update: Update, context: CallbackContext) -> None:
-    # Echo back the text the user selected
-    await update.message.reply_text(f"You selected: {update.message.text}")
 
 # Main function to run the bot
-
-
 async def main():
     # Your bot token here
-    TOKEN = '7537225129:AAEzwy4Y7W_M8RcU7r8jeLx5YZTDScq2QtQ'
+    TOKEN = os.getenv('BOT_TOKEN')
 
     # Create an Application object
     application = Application.builder().token(TOKEN).build()
 
-    # Add a handler that triggers the default keyboard on any message (except commands)
-    application.add_handler(MessageHandler(
-        filters.TEXT & ~filters.COMMAND, default_keyboard))
+    # Handler for the /start command to show the instruction button and send the greeting message
+    application.add_handler(CommandHandler("start", show_instruction_button))
 
-    # Add a handler for button presses (from the default keyboard)
     application.add_handler(MessageHandler(
-        filters.TEXT & ~filters.COMMAND, button_handler))
+        filters.Regex('^Инструкция$'), send_instruction))
+
+    # Handler for valid images (3 or 5 images with no text)
+    application.add_handler(MessageHandler(
+        filters.PHOTO & ~filters.TEXT, handle_valid_message))
+
+    # Reject messages that don't match the criteria (invalid format)
+    application.add_handler(MessageHandler(
+        filters.ALL & ~filters.PHOTO, reject_invalid_message))
 
     await application.initialize()
 
