@@ -60,12 +60,14 @@ async def handle_valid_message(update: Update, context: CallbackContext) -> None
             await update.message.reply_text("⌛ Processing your images...")
 
             # Download and process the images
+            print(context.chat_data[media_group_id]["photos"])
             images = []
             for file_id in context.chat_data[media_group_id]["photos"]:
                 file = await context.bot.get_file(file_id)
                 file_bytearray = await file.download_as_bytearray()
                 images.append(file_bytearray)
 
+            print(len(images))
             # Send the images for further processing
             result = await image_processor.process(images)
 
