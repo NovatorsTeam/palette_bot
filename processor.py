@@ -41,7 +41,7 @@ class ImageProcessor:
 
         return img_array
 
-    def create_image_dict(processed_images):
+    def create_image_dict(self, processed_images):
         image_names = ['bottom_image', *
                        [f"side_{i}_image" for i in range(1, 5)]]
         return {name: image for processed_images, name in zip(processed_images, image_names)}
