@@ -64,10 +64,6 @@ async def handle_valid_message(update: Update, context: CallbackContext) -> None
                 file_bytearray = await file.download_as_bytearray()
                 images.append(file_bytearray)
 
-            # Debugging print: print the number of images and their dimensions
-            print(f"Received {len(preprocessed_images)} images:", [
-                  image.shape for image in preprocessed_images])
-
             # Send the images for further processing
             result = await image_processor.process(images)
 
