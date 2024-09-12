@@ -61,7 +61,7 @@ class ImageProcessor:
         print(len(preprocessed_images), [
               image.shape for image in preprocessed_images])
 
-        image_dict = create_image_dict(preprocessed_images)
+        image_dict = self.create_image_dict(preprocessed_images)
 
         # Initialize Triton client
         triton_client = AsyncioModelClient(
