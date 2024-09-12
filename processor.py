@@ -29,7 +29,12 @@ class ImageProcessor:
             np.ndarray: The image as a NumPy array with shape (height, width, 3).
         """
         img = Image.open(BytesIO(image)).convert("RGB")
-        return np.array(img)
+
+        # Convert image to NumPy array and transpose to (channels, height, width)
+        # Switch the axis to (channels, height, width)
+        img_array = np.array(img).transpose(2, 0, 1)
+
+        return img_array
 
     async def process(self, images: list) -> np.ndarray:
         """
