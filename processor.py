@@ -14,7 +14,7 @@ class ImageProcessor:
         """
         Initialize the ImageProcessor with the Triton server address and model name.
         """
-        self._address = f"{os.getenv('TRITON_SERVER_ADDRESS')}:{
+        self._address = self._address = f"{os.getenv('TRITON_SERVER_ADDRESS')}:{
             os.getenv('TRITON_SERVER_PORT')}"
         self._model_name = model_name
 
@@ -43,21 +43,23 @@ class ImageProcessor:
         """
         # Preprocess each image
         preprocessed_images = [self.preprocess_image(img) for img in images]
+        print(preprocessed_images.size)
 
-        # Convert list of images to a batch of images (assume ResNet expects (N, H, W, 3))
-        batch_images = np.stack(preprocessed_images, axis=0)
+        # # Convert list of images to a batch of images (assume ResNet expects (N, H, W, 3))
+        # batch_images = np.stack(preprocessed_images, axis=0)
 
-        # Initialize Triton client
-        triton_client = AsyncioModelClient(
-            self._address, self._model_name, init_timeout_s=5)
+        # # Initialize Triton client
+        # triton_client = AsyncioModelClient(
+        #     self._address, self._model_name, init_timeout_s=5)
 
-        # Send the batch of images to the Triton server
-        result_dict = await triton_client.infer_sample(batch_images)
+        # # Send the batch of images to the Triton server
+        # result_dict = await triton_client.infer_sample(batch_images)
 
-        # Close the client
-        await triton_client.close()
+        # # Close the client
+        # await triton_client.close()
 
-        # Assuming the model returns a set of embeddings or class predictions
-        # Adjust this based on the model's output format
-        result = result_dict["output"]
-        return result
+        # # Assuming the model returns a set of embeddings or class predictions
+        # # Adjust this based on the model's output format
+        # result = result_dict["output"]
+        # return result
+        return 'HAHAHAH'
