@@ -1,6 +1,6 @@
 from telegram import Update
 from telegram import ReplyKeyboardMarkup, Update, InputMediaPhoto
-from messages import inavlid_input_message, instruction_message, greeting_message, processing_message
+from messages import inavlid_input_message, instruction_message, greeting_message, processing_message, create_result_message
 import os
 import time
 import asyncio
@@ -35,6 +35,7 @@ image_processor = ImageProcessor(model_name="resnet")
 
 
 async def handle_valid_message(update: Update, context: CallbackContext) -> None:
+    await update.message.reply_text(processing_message)
     # Check if the message is part of a media group
     if update.message.media_group_id:
         media_group_id = update.message.media_group_id
@@ -57,7 +58,6 @@ async def handle_valid_message(update: Update, context: CallbackContext) -> None
 
         # Proceed only when no new images arrive for 2 seconds
         if len(context.chat_data[media_group_id]["photos"]) == 5:
-            await update.message.reply_text("⌛ Processing your images...")
 
             # Download and process the images
             print(context.chat_data[media_group_id]["photos"])
@@ -72,17 +72,17 @@ async def handle_valid_message(update: Update, context: CallbackContext) -> None
             result = await image_processor.process(images)
 
             # Send the result back to the user
-            await update.message.reply_text(f"🎉 Processing complete! Result: {result}")
+            await update.message.reply_text(create_result_message(result))
 
             # Clear the media group after processing
             context.chat_data.pop(media_group_id)
         elif len(context.chat_data[media_group_id]["photos"]) > 5:
             # Reject if more than 5 images are received
-            await update.message.reply_text("🐍 Invalid input! Please send exactly 3 or 5 images.")
+            await update.message.reply_text(inavlid_input_message)
             context.chat_data.pop(media_group_id)
     else:
         # Handle single image case or non-media group case
-        await update.message.reply_text("🐍 Invalid input! Please send exactly 3 or 5 images.")
+        await update.message.reply_text(inavlid_input_message)
 
 
 # Function to reject invalid messages

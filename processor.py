@@ -4,6 +4,7 @@ from pytriton.client import AsyncioModelClient
 from io import BytesIO
 from dotenv import load_dotenv
 import os
+import random
 
 # Load environment variables
 load_dotenv()
@@ -72,4 +73,4 @@ class ImageProcessor:
         # # Adjust this based on the model's output format
         # result = result_dict["output"]
         # return result
-        return 'HAHAHAH'
+        return random.random() < 0.5
