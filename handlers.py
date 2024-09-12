@@ -57,6 +57,7 @@ async def handle_valid_message(update: Update, context: CallbackContext) -> None
         if len(context.chat_data[media_group_id]["photos"]) == 3 or len(context.chat_data[media_group_id]["photos"]) == 5:
             await update.message.reply_text("⌛ Processing your images...")
 
+            print(len(context.chat_data[media_group_id]["photos"]))
             # Download and process the images
             images = []
             for file_id in context.chat_data[media_group_id]["photos"]:
