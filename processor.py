@@ -41,6 +41,11 @@ class ImageProcessor:
 
         return img_array
 
+    def create_image_dict(processed_images):
+        image_names = ['bottom_image', *
+                       [f"side_{i}_image" for i in range(1, 5)]]
+        return {name: image for processed_images, name in zip(processed_images, image_names)}
+
     async def process(self, images: list) -> np.ndarray:
         """
         Sends the preprocessed images to the Triton server for inference.
@@ -56,21 +61,17 @@ class ImageProcessor:
         print(len(preprocessed_images), [
               image.shape for image in preprocessed_images])
 
-        # # Convert list of images to a batch of images (assume ResNet expects (N, H, W, 3))
-        # batch_images = np.stack(preprocessed_images, axis=0)
+        image_dict = create_image_dict(preprocessed_images)
 
-        # # Initialize Triton client
-        # triton_client = AsyncioModelClient(
-        #     self._address, self._model_name, init_timeout_s=5)
+        # Initialize Triton client
+        triton_client = AsyncioModelClient(
+            self._address, self._model_name, init_timeout_s=15)
 
-        # # Send the batch of images to the Triton server
-        # result_dict = await triton_client.infer_sample(batch_images)
+        # Send the batch of images to the Triton server
+        result_dict = await triton_client.infer_sample(**image_dict)
 
-        # # Close the client
-        # await triton_client.close()
+        # Close the client
+        await triton_client.close()
 
-        # # Assuming the model returns a set of embeddings or class predictions
-        # # Adjust this based on the model's output format
-        # result = result_dict["output"]
         # return result
-        return random.random() < 0.5
+        return (bool(result_dict['boolean_output']), float(result_dict['probability_output']))

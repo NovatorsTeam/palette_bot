@@ -4,14 +4,17 @@ from messages import inavlid_input_message, instruction_message, greeting_messag
 import os
 import time
 import asyncio
+from dotenv import load_dotenv
 from telegram.ext import CallbackContext
 from io import BytesIO
 from processor import ImageProcessor
 
+load_dotenv()
+
 # Function to send instructions with images from the assets folder
 ASSETS_PATH = "./assets/"
 
-image_processor = ImageProcessor(model_name="resnet")
+image_processor = ImageProcessor(model_name=os.getenv('MODEL_NAME'))
 
 
 async def send_instruction(update: Update, context: CallbackContext) -> None:
