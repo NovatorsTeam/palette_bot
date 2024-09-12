@@ -3,6 +3,7 @@ from telegram import ReplyKeyboardMarkup, Update, InputMediaPhoto
 from messages import inavlid_input_message, instruction_message, greeting_message, processing_message
 import os
 import time
+import asyncio
 from telegram.ext import CallbackContext
 from io import BytesIO
 from processor import ImageProcessor
