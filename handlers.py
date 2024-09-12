@@ -17,12 +17,9 @@ image_processor = ImageProcessor(model_name="resnet")
 async def send_instruction(update: Update, context: CallbackContext) -> None:
     # Load images from the assets folder
     # Update with actual image file names in 'assets'
-    image_files = ['image1.jpg', 'image2.jpg', 'image3.jpg']
-    images = [InputMediaPhoto(
-        open(os.path.join(ASSETS_PATH, img), 'rb')) for img in image_files]
-
     # Send the message with the images
-    await context.bot.send_media_group(chat_id=update.effective_chat.id, media=images)
+    await context.bot.send_media_group(chat_id=update.effective_chat.id, media=InputMediaPhoto(
+        open(os.path.join(ASSETS_PATH, 'instruction.jpg'), 'rb')))
 
     # Send the instruction message
     await update.message.reply_text(instruction_message)
@@ -35,13 +32,13 @@ image_processor = ImageProcessor(model_name="resnet")
 
 
 async def handle_valid_message(update: Update, context: CallbackContext) -> None:
-    await update.message.reply_text(processing_message)
     # Check if the message is part of a media group
     if update.message.media_group_id:
         media_group_id = update.message.media_group_id
 
         # Initialize the media group if it doesn't exist in the chat data
         if media_group_id not in context.chat_data:
+            await update.message.reply_text(processing_message)
             context.chat_data[media_group_id] = {
                 "photos": [],
                 "last_update_time": time.time()  # Track when the last image was received
