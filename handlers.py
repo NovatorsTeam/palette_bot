@@ -2,9 +2,13 @@ from telegram import ReplyKeyboardMarkup, Update, InputMediaPhoto
 from messages import inavlid_input_message, instruction_message, greeting_message, processing_message
 import os
 from telegram.ext import CallbackContext
+from io import BytesIO
+from processor import ImageProcessor
 
 # Function to send instructions with images from the assets folder
 ASSETS_PATH = "./assets/"
+
+image_processor = ImageProcessor(model_name="resnet")
 
 
 async def send_instruction(update: Update, context: CallbackContext) -> None:
@@ -22,35 +26,30 @@ async def send_instruction(update: Update, context: CallbackContext) -> None:
 
 
 # Function to handle valid messages with exactly 3 or 5 images
+# Function to handle valid messages with exactly 3 or 5 images
 async def handle_valid_message(update: Update, context: CallbackContext) -> None:
-    # Check if media_group_id exists (multiple images in a group)
-    if update.message.media_group_id:
-        media_group_id = update.message.media_group_id
+    user_id = update.effective_user.id
 
-        # Initialize or update the list of images in the group
-        if media_group_id not in context.chat_data:
-            context.chat_data[media_group_id] = []
+    # Download images from the message
+    images = []
+    for photo in update.message.photo:
+        # Get the highest resolution of the photo
+        file = await context.bot.get_file(photo.file_id)
+        file_bytearray = BytesIO()
+        await file.download(out=file_bytearray)
+        images.append(file_bytearray.getvalue())
 
-        context.chat_data[media_group_id].append(update.message)
+    # Process images using ImageProcessor
+    if len(images) == 3 or len(images) == 5:
+        await update.message.reply_text("⌛ Processing your images...")
 
-        # Check if the group has exactly 3 or 5 images
-        if len(context.chat_data[media_group_id]) == 3 or len(context.chat_data[media_group_id]) == 5:
-            await update.message.reply_text(processing_message)
-            # Remove the media group from the context after processing
-            context.chat_data.pop(media_group_id)
-        elif len(context.chat_data[media_group_id]) > 5:
-            await update.message.reply_text(inavlid_input_message)
-            # Remove the media group after rejecting
-            context.chat_data.pop(media_group_id)
+        # Send the images for processing
+        result = await image_processor.process(images)
 
-    # Handle individual images or cases where media_group_id does not exist
+        # Send the result back to the user
+        await update.message.reply_text(f"🎉 Processing complete! Result: {result}")
     else:
-        # Single image, or group of images not in a media group
-        num_images = len(update.message.photo)
-        if num_images != 3 and num_images != 5:  # Invalid if it's not exactly 3 or 5 images
-            await update.message.reply_text(inavlid_input_message)
-        else:
-            await update.message.reply_text(processing_message)
+        await update.message.reply_text("🐍 Invalid input! Please send exactly 3 or 5 images.")
 
 
 # Function to reject invalid messages
