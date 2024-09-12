@@ -37,7 +37,7 @@ class ImageProcessor:
         print(img_array.shape)
 
         # Transpose the array to get (channels, height, width)
-        img_array = img_array.transpose(2, 0, 1)
+        img_array = img_array.transpose(2, 0, 1).astype(np.float32)
 
         return img_array
 
