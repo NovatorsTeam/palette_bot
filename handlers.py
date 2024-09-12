@@ -39,24 +39,32 @@ async def handle_valid_message(update: Update, context: CallbackContext) -> None
 
         # Initialize the media group if it doesn't exist in the chat data
         if media_group_id not in context.chat_data:
-            context.chat_data[media_group_id] = []
+            context.chat_data[media_group_id] = {
+                "photos": [],
+                "timestamp": time.time(),
+            }
 
         # Append the current image to the media group
-        context.chat_data[media_group_id].append(
+        context.chat_data[media_group_id]["photos"].append(
             update.message.photo[-1].file_id)
 
-        # Wait until all images are received (3 or 5 images)
-        if len(context.chat_data[media_group_id]) == 3 or len(context.chat_data[media_group_id]) == 5:
+        # Delay the processing to allow time for all images in the media group to arrive
+        await asyncio.sleep(1.5)
+
+        # Check if 3 or 5 images have been received
+        if len(context.chat_data[media_group_id]["photos"]) == 3 or len(context.chat_data[media_group_id]["photos"]) == 5:
             await update.message.reply_text("⌛ Processing your images...")
 
             # Download and process the images
             images = []
-            print(len(context.chat_data[media_group_id]))
-            for file_id in context.chat_data[media_group_id]:
-                print(file_id)
+            for file_id in context.chat_data[media_group_id]["photos"]:
                 file = await context.bot.get_file(file_id)
                 file_bytearray = await file.download_as_bytearray()
                 images.append(file_bytearray)
+
+            # Debugging print: print the number of images and their dimensions
+            print(f"Received {len(preprocessed_images)} images:", [
+                  image.shape for image in preprocessed_images])
 
             # Send the images for further processing
             result = await image_processor.process(images)
@@ -66,8 +74,8 @@ async def handle_valid_message(update: Update, context: CallbackContext) -> None
 
             # Clear the media group after processing
             context.chat_data.pop(media_group_id)
-        elif len(context.chat_data[media_group_id]) > 5:
-            # Reject if there are more than 5 images and reset the group
+        elif len(context.chat_data[media_group_id]["photos"]) > 5:
+            # Reject if more than 5 images are received
             await update.message.reply_text("🐍 Invalid input! Please send exactly 3 or 5 images.")
             context.chat_data.pop(media_group_id)
     else:
