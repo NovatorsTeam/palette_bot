@@ -28,11 +28,15 @@ class ImageProcessor:
         Returns:
             np.ndarray: The image as a NumPy array with shape (height, width, 3).
         """
-        img = Image.open(image).convert("RGB")
+        img = Image.open(BytesIO(image)).convert("RGB")
 
-        # Convert image to NumPy array and transpose to (channels, height, width)
-        # Switch the axis to (channels, height, width)
-        img_array = np.array(img).transpose(2, 0, 1)
+        # Convert the PIL image to a NumPy array with shape (height, width, channels)
+        img_array = np.array(img)
+
+        print(img_array.shape)
+
+        # Transpose the array to get (channels, height, width)
+        img_array = img_array.transpose(2, 0, 1)
 
         return img_array
 
