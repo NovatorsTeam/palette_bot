@@ -41,10 +41,6 @@ async def handle_valid_message(update: Update, context: CallbackContext) -> None
         if media_group_id not in context.chat_data:
             context.chat_data[media_group_id] = []
 
-        # Append the current image to the media group
-        context.chat_data[media_group_id].append(
-            update.message.photo[-1].file_id)
-
         print(context.chat_data[media_group_id])
 
         # Wait until all images are received (3 or 5 images)
