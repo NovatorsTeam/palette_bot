@@ -1,3 +1,4 @@
+from telegram import Update
 from telegram import ReplyKeyboardMarkup, Update, InputMediaPhoto
 from messages import inavlid_input_message, instruction_message, greeting_message, processing_message
 import os
@@ -25,8 +26,14 @@ async def send_instruction(update: Update, context: CallbackContext) -> None:
     await update.message.reply_text(instruction_message)
 
 
+# Initialize ImageProcessor with the model name (e.g., 'resnet')
+image_processor = ImageProcessor(model_name="resnet")
+
+# Function to handle valid messages with exactly 3 or 5 images
+
+
 async def handle_valid_message(update: Update, context: CallbackContext) -> None:
-    # Check if the message is part of a media group (multiple images sent as a single message)
+    # Check if the message is part of a media group
     if update.message.media_group_id:
         media_group_id = update.message.media_group_id
 
@@ -38,7 +45,7 @@ async def handle_valid_message(update: Update, context: CallbackContext) -> None
         context.chat_data[media_group_id].append(
             update.message.photo[-1].file_id)
 
-        # If we've received 3 or 5 images, process them
+        # Wait until all images are received (3 or 5 images)
         if len(context.chat_data[media_group_id]) == 3 or len(context.chat_data[media_group_id]) == 5:
             await update.message.reply_text("⌛ Processing your images...")
 
@@ -49,8 +56,16 @@ async def handle_valid_message(update: Update, context: CallbackContext) -> None
                 file_bytearray = await file.download_as_bytearray()
                 images.append(file_bytearray)
 
-            # Send the images for processing
-            result = await image_processor.process(images)
+            # Process the images using ImageProcessor
+            preprocessed_images = [
+                image_processor.preprocess_image(img) for img in images]
+
+            # Debugging print: print the number of images and their dimensions
+            print(len(preprocessed_images), [
+                  image.shape for image in preprocessed_images])
+
+            # Send the images for further processing
+            result = await image_processor.process(preprocessed_images)
 
             # Send the result back to the user
             await update.message.reply_text(f"🎉 Processing complete! Result: {result}")
@@ -58,9 +73,11 @@ async def handle_valid_message(update: Update, context: CallbackContext) -> None
             # Clear the media group after processing
             context.chat_data.pop(media_group_id)
         elif len(context.chat_data[media_group_id]) > 5:
+            # Reject if there are more than 5 images and reset the group
             await update.message.reply_text("🐍 Invalid input! Please send exactly 3 or 5 images.")
-            context.chat_data.pop(media_group_id)  # Clear invalid group
+            context.chat_data.pop(media_group_id)
     else:
+        # Handle single image case or non-media group case
         await update.message.reply_text("🐍 Invalid input! Please send exactly 3 or 5 images.")
 
 
