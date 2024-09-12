@@ -14,8 +14,8 @@ class ImageProcessor:
         """
         Initialize the ImageProcessor with the Triton server address and model name.
         """
-        self._address = self._address = f"{os.getenv('TRITON_SERVER_ADDRESS')}:{
-            os.getenv('TRITON_SERVER_PORT')}"
+        self._address = os.getenv(
+            'TRITON_SERVER_ADDRESS') + ':' + os.getenv('TRITON_SERVER_PORT')
         self._model_name = model_name
 
     def preprocess_image(self, image: bytes) -> np.ndarray:
