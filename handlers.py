@@ -27,10 +27,6 @@ async def send_instruction(update: Update, context: CallbackContext) -> None:
     # Send the instruction message
     await update.message.reply_text(instruction_message)
 
-
-# Initialize ImageProcessor with the model name (e.g., 'resnet')
-image_processor = ImageProcessor(model_name="resnet")
-
 # Function to handle valid messages with exactly 3 or 5 images
 
 
