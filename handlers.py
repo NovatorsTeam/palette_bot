@@ -98,4 +98,4 @@ async def show_instruction_button(update: Update, context: CallbackContext) -> N
     )
 
     # Send the greeting message
-    await update.message.reply_text(greeting_message)
+    await update.message.reply_text(greeting_message, reply_markup=reply_markup)
